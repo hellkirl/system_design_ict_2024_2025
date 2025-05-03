@@ -90,4 +90,4 @@ spec:
 
 10. Теперь создадим дашборд для deployment нашего приложения:
 ![alt text](<static/dashboard.png>)
-[Видео с дашбордом и тестированием сервера](static/video.mp4)
+[Видео защиты практической работы](https://drive.google.com/file/d/1Cju2NSJ2CAzyzQQCXTgxYhPnC3EZiuCi/view?usp=drive_link)
