@@ -1,0 +1,61 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  spark-master:
+    image: bitnami/spark:latest
+    environment:
+      - SPARK_MODE=master
+    ports:
+      - "7077:7077"
+      - "8080:8080"
+    volumes:
+      - data:/data
+
+  spark-worker:
+    image: bitnami/spark:latest
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    depends_on:
+      - spark-master
+    volumes:
+      - data:/data
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: ./Dockerfile
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    volumes:
+      - ./backend:/app
+      - data:/data
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+
+  worker:
+    build: 
+      context: ./backend
+      dockerfile: ./Dockerfile
+    command: celery -A tasks worker --loglevel=info
+    volumes:
+      - ./backend:/app
+      - data:/data
+    depends_on:
+      - redis
+      - spark-master
+
+  frontend:
+    build: ./frontend
+    command: npm start
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  data:
